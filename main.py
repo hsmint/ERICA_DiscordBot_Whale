@@ -17,6 +17,11 @@ async def on_message(ctx):
     if ctx.author == app.user:
         return
     
+    if ctx.content.startswith("!help"):
+        e = discord.Embed(title="Help",  description="!whale - Show random picture of whale emoticon.")
+        e.set_footer(text="Made by hsmint")
+        await ctx.channel.send(embed=e)
+
     if ctx.content.startswith("!whale"):
         pick = random.randrange(1, 30)
         await ctx.channel.send(file=discord.File('image/'+str(pick)+'.png'))
