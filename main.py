@@ -5,27 +5,42 @@ import random
 
 token = os.environ["discord_auth"]
 
-app = discord.Client()
+bot = commands.Bot(command_prefix="!",help_command=None, activity=discord.Activity(name="Whale | !help", type=1))
 
-@app.event
+footer = "Made by hsmint"
+
+@bot.event
 async def on_ready():
-    print("Log in as :", app.user.name)
-    await app.change_presence(activity=discord.Activity(name="Currently Not Available", type=1))
+    print("Logged in as: "+ bot.user.name)
 
-@app.event
-async def on_message(ctx):
-    if ctx.author == app.user:
-        return
-    
-    if ctx.content.startswith("!help"):
-        e = discord.Embed(title="Help",  description="!whale - Show random picture of whale emoticon.")
-        e.set_footer(text="Made by hsmint")
-        await ctx.channel.send(embed=e)
+class Whale(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot;
 
-    if ctx.content.startswith("!whale"):
+    @commands.command()
+    async def whale(self, ctx):
         pick = random.randrange(1, 30)
-        await ctx.channel.send(file=discord.File('image/'+str(pick)+'.png'))
+        await ctx.send(file=discord.File('image/'+str(pick)+'.png'))
 
-app.run(token)
+    @commands.command()
+    async def help(self, ctx):
+        e = discord.Embed(title="Help",  description="!whale - Show random picture of whale emoticon.")
+        e.set_footer(text=footer)
+        await ctx.send(embed=e)
+
+class Game(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+    
+    @commands.command()
+    async def game(self, ctx):
+        text = "What game do you want to play!"
+        e = discord.Embed(title="Play Game!", description=text)
+        e.set_footer(text=footer)
+        await ctx.send(embed=e)
+
+bot.add_cog(Whale(bot))
+bot.add_cog(Game(bot))
+bot.run(token)
 
 
