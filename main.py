@@ -15,7 +15,7 @@ async def on_ready():
 
 class Whale(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot;
+        self.bot = bot
 
     @commands.command()
     async def whale(self, ctx):
@@ -28,19 +28,22 @@ class Whale(commands.Cog):
         e.set_footer(text=footer)
         await ctx.send(embed=e)
 
+    @commands.command()
+    async def ping(self, ctx):
+        await ctx.send("Pong! `{0}ms`".format(round(bot.latency, 6)))
+    
+    
 class Game(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
+        
     @commands.command()
     async def game(self, ctx):
         text = "What game do you want to play!"
-        e = discord.Embed(title="Play Game!", description=text)
+        e = discord.Embed(title="Showing Game available", description=text)
         e.set_footer(text=footer)
         await ctx.send(embed=e)
 
-bot.add_cog(Whale(bot))
-bot.add_cog(Game(bot))
 bot.run(token)
 
 
