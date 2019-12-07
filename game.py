@@ -13,3 +13,8 @@ class blackjack:
                 self.deck.append({"suit": name, "rank": num})
         random.shuffle(self.deck)
         return self.deck
+    
+    def hit(self, deck):
+        if self.deck == []:
+            self.deck = new_deck()
+        return (self.deck[0] , self.deck[1:])
