@@ -1,7 +1,6 @@
 import discord
+import os, random
 from discord.ext import commands
-import os
-import random
 
 token = os.environ["discord_auth"]
 
@@ -32,7 +31,6 @@ class Whale(commands.Cog):
     async def ping(self, ctx):
         await ctx.send("Pong! `{0}ms`".format(round(bot.latency, 6)))
     
-    
 class Game(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -57,12 +55,27 @@ class Music(commands.Cog):
             return
         
         try:
-            await ctx.author.voice.channel.connect()
-        
-        except discord.ClientException:
-            e = discord.Embed(description="I'm already in voice channel")
+            channel = ctx.author.voice.channel
+            await channel.connect()
+            e = discord.Embed(description="Connected to voice channel: "+ str(channel))
             e.set_footer(text=footer)
             await ctx.send(embed=e)
+        
+        except discord.ClientException:
+            e = discord.Embed(description="I'm already in voice channel.")
+            e.set_footer(text=footer)
+            await ctx.send(embed=e)
+    
+    @commands.command()
+    async def leave(self, ctx):
+        try:
+            await ctx.voice_client.disconnect()
+        
+        except AttributeError:
+            e= discord.Embed(description="I'm not in voice channel.")
+            e.set_footer(text=footer)
+            await ctx.send(embed=e)
+            
 
 #bot Catergory
 bot.add_cog(Whale(bot))
@@ -70,5 +83,3 @@ bot.add_cog(Game(bot))
 bot.add_cog(Music(bot))
 
 bot.run(token)
-
-
