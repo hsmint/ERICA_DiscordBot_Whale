@@ -44,6 +44,31 @@ class Game(commands.Cog):
         e.set_footer(text=footer)
         await ctx.send(embed=e)
 
+class Music(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+    
+    @commands.command()
+    async def join(self, ctx):
+        if ctx.author.voice is None:
+            e = discord.Embed(description="You are not in voice channel")
+            e.set_footer(text=footer)
+            await ctx.send(embed=e)
+            return
+        
+        try:
+            await ctx.author.voice.channel.connect()
+        
+        except discord.ClientException:
+            e = discord.Embed(description="I'm already in voice channel")
+            e.set_footer(text=footer)
+            await ctx.send(embed=e)
+
+#bot Catergory
+bot.add_cog(Whale(bot))
+bot.add_cog(Game(bot))
+bot.add_cog(Music(bot))
+
 bot.run(token)
 
 
