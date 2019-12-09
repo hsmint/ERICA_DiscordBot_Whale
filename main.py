@@ -8,6 +8,11 @@ bot = commands.Bot(command_prefix="!",help_command=None, activity=discord.Activi
 
 footer = "Made by hsmint"
 
+def message(head, msg):
+    e = discord.Embed(title=head, description=msg)
+    e.set_footer(text=footer)
+    return e
+
 @bot.event
 async def on_ready():
     print("Logged in as: "+ bot.user.name)
@@ -23,8 +28,7 @@ class Whale(commands.Cog):
 
     @commands.command()
     async def help(self, ctx):
-        e = discord.Embed(title="Help",  description="!whale - Show random picture of whale emoticon.")
-        e.set_footer(text=footer)
+        e = message("Help", "!whale - Show random picture of whale emoticon.")
         await ctx.send(embed=e)
 
     @commands.command()
@@ -38,8 +42,7 @@ class Game(commands.Cog):
     @commands.command()
     async def game(self, ctx):
         text = "What game do you want to play!"
-        e = discord.Embed(title="Showing Game available", description=text)
-        e.set_footer(text=footer)
+        e = message("<Showing Game available>", text)
         await ctx.send(embed=e)
 
 class Music(commands.Cog):
@@ -49,21 +52,18 @@ class Music(commands.Cog):
     @commands.command()
     async def join(self, ctx):
         if ctx.author.voice is None:
-            e = discord.Embed(description="You are not in voice channel")
-            e.set_footer(text=footer)
+            e = message("", "You are not in voice channel.")
             await ctx.send(embed=e)
             return
         
         try:
             channel = ctx.author.voice.channel
             await channel.connect()
-            e = discord.Embed(description="Connected to voice channel: "+ str(channel))
-            e.set_footer(text=footer)
+            e = message("", "Connected to voice channel: "+ str(channel))
             await ctx.send(embed=e)
         
         except discord.ClientException:
-            e = discord.Embed(description="I'm already in voice channel.")
-            e.set_footer(text=footer)
+            e = message("", "I'm already in voice channel.")
             await ctx.send(embed=e)
     
     @commands.command()
@@ -72,11 +72,9 @@ class Music(commands.Cog):
             await ctx.voice_client.disconnect()
         
         except AttributeError:
-            e= discord.Embed(description="I'm not in voice channel.")
-            e.set_footer(text=footer)
+            e= message("", "I'm not in voice channel.")
             await ctx.send(embed=e)
             
-
 #bot Catergory
 bot.add_cog(Whale(bot))
 bot.add_cog(Game(bot))
