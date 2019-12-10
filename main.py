@@ -44,7 +44,7 @@ class Game(commands.Cog):
         text = "What game do you want to play!"
         e = message("<Showing Game available>", text)
         await ctx.send(embed=e)
-
+    
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -56,19 +56,27 @@ class Music(commands.Cog):
             await ctx.send(embed=e)
             return
         
+        channel = ctx.author.voice.channel
         try:
-            channel = ctx.author.voice.channel
             await channel.connect()
-            e = message("", "Connected to voice channel: "+ str(channel))
+            e = message("", "Connected to voice channel to "+ str(channel))
             await ctx.send(embed=e)
         
         except discord.ClientException:
-            e = message("", "I'm already in voice channel.")
-            await ctx.send(embed=e)
-    
+            if channel == ctx.voice_client.channel:
+                e = message("", "I'm already in voice channel.")
+                await ctx.send(embed=e)
+            
+            else:
+                await ctx.send(embed=message("","Moving voice channel to " + str(channel)))
+                await ctx.voice_client.disconnect()
+                await channel.connect()
+
     @commands.command()
     async def leave(self, ctx):
         try:
+            channel = ctx.voice_client.channel
+            await ctx.send(embed=message("", "Leaving voice channel " + str(channel)))
             await ctx.voice_client.disconnect()
         
         except AttributeError:
