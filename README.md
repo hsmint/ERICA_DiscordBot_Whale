@@ -14,8 +14,10 @@ Still in development
 To install run the following command:
 
 ```
-# Linux
+# Linux(Ubuntu 18.04)
 python3 -m pip install -U discord.py[voice]
+
+python3 -m pip install youtube-dl
 
 sudo apt install ffmpeg
 ```
