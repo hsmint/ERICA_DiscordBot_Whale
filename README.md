@@ -20,8 +20,14 @@ python3 -m pip install -U discord.py[voice]
 sudo apt install ffmpeg
 ```
 
+## Developments
+
+1. Clone this repository
+
+2. From main.py change discord_auth to your discord bot token
+
 ## Invite
 
 To invite discord bot to your channel click below
 
-*[ERICA_DiscordBot-Whale](https://discordapp.com/oauth2/authorize?client_id=648062744389484565&permissions=8&scope=bot)
+* [ERICA_DiscordBot-Whale](https://discordapp.com/oauth2/authorize?client_id=648062744389484565&permissions=8&scope=bot)
