@@ -120,6 +120,18 @@ class Music(commands.Cog):
                 await channel.connect()
 
     @commands.command()
+    async def play(self, ctx, *, url):
+        """Plays from a url (almost anything youtube_dl supports)"""
+
+        async with ctx.typing():
+            player = await YTDLSource.from_url(url, loop=self.bot.loop)
+            if ctx.voice_client.is_playing():
+                return
+            ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
+
+        await ctx.send('Now playing: {}'.format(player.title))
+
+    @commands.command()
     async def leave(self, ctx):
         try:
             channel = ctx.voice_client.channel
