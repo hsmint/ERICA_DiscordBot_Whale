@@ -130,6 +130,15 @@ class Music(commands.Cog):
             ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
 
         await ctx.send('Now playing: {}'.format(player.title))
+    
+    @commands.command()
+    async def volume(self, ctx, volume: int):
+        if ctx.voice_client is None:
+            return await ctx.send("Not connected to a voice channel.")
+
+        self.volume = volume
+        ctx.voice_client.source.volume = self.volume / 100
+        await ctx.send("Changed volume to {}%".format(self.volume))
 
     @commands.command()
     async def leave(self, ctx):
