@@ -22,11 +22,25 @@ python3 -m pip install youtube-dl
 sudo apt install ffmpeg
 ```
 
+## Functions
+
+1. Main
+    * `whale`
+    * `latency`
+    * `help`
+2. Game
+    * `blackjack`
+3. Music
+    * `join`
+    * `play`
+    * `volume`
+    * `leave`
+
+
 ## Developments
 
 1. Clone this repository
-
-2. From main.py change discord_auth to your discord bot token
+2. From main.py change `discord_auth` to your discord bot token
 
 ## Invite
 
