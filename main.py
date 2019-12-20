@@ -31,7 +31,6 @@ ffmpeg_options = {
 
 ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
 
-
 class YTDLSource(discord.PCMVolumeTransformer):
     def __init__(self, source, *, data, volume=0.5):
         super().__init__(source, volume)
@@ -101,24 +100,20 @@ class Music(commands.Cog):
     @commands.command()
     async def join(self, ctx):
         if ctx.author.voice is None:
-            e = message("", "You are not in voice channel.")
-            await ctx.send(embed=e)
-            return
+            return await ctx.send("You are not in voice channel.")
         
         channel = ctx.author.voice.channel
 
         try:
             await channel.connect()
-            e = message("", "Connected to voice channel to "+ str(channel))
-            await ctx.send(embed=e)
+            await ctx.send("Connected to voice channel to "+ str(channel))
         
         except discord.ClientException:
             if channel == ctx.voice_client.channel:
-                e = message("", "I'm already in voice channel.")
-                await ctx.send(embed=e)
+                await ctx.send("I'm already in voice channel.")
 
             else:
-                await ctx.send(embed=message("","Moving voice channel to " + str(channel)))
+                await ctx.send("Moving voice channel to " + str(channel))
                 await ctx.voice_client.disconnect()
                 await channel.connect()
 
@@ -186,7 +181,7 @@ class Music(commands.Cog):
     @commands.command()
     async def volume(self, ctx, volume: int):
         if ctx.voice_client is None:
-            return await ctx.send("Not connected to a voice channel.")
+            return await ctx.send("I'm not connected to a voice channel.")
 
         ctx.voice_client.source.volume = volume / 100
         await ctx.send("Changed volume to {}%".format(volume))
@@ -195,12 +190,11 @@ class Music(commands.Cog):
     async def leave(self, ctx):
         try:
             channel = ctx.voice_client.channel
-            await ctx.send(embed=message("", "Leaving voice channel " + str(channel)))
+            await ctx.send("Leaving voice channel " + str(channel))
             await ctx.voice_client.disconnect()
         
         except AttributeError:
-            e= message("", "I'm not in voice channel.")
-            await ctx.send(embed=e)
+            await ctx.send("I'm not in voice channel.")
             
 #bot Catergory
 bot.add_cog(Whale(bot))
