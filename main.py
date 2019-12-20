@@ -131,8 +131,10 @@ class Music(commands.Cog):
             await ctx.send("Music is still playing.\nDo you want to stop this music?(y/n)")
             try:
                 chk = await self.bot.wait_for('message', timeout=10.0)
+                while not (chk.content == 'y' or chk.content == 'n'):
+                    chk = await self.bot.wait_for('message', timeout=5.0)
                 if chk.content == 'y' : ctx.voice_client.stop()
-                else: return
+                else : return
             
             except asyncio.TimeoutError:
                 await ctx.send("Timeout.")
@@ -180,7 +182,7 @@ class Music(commands.Cog):
         
         else:
             return await ctx.send("There is no music playing.")
-            
+
     @commands.command()
     async def volume(self, ctx, volume: int):
         if ctx.voice_client is None:
