@@ -1,7 +1,9 @@
 import discord
-import os, random, asyncio
+import os, random, asyncio, time
 import youtube_dl
+import urllib.request, urllib.parse, re
 from discord.ext import commands
+from bs4 import BeautifulSoup
 
 token = os.environ["discord_auth"]
 
@@ -104,6 +106,7 @@ class Music(commands.Cog):
             return
         
         channel = ctx.author.voice.channel
+
         try:
             await channel.connect()
             e = message("", "Connected to voice channel to "+ str(channel))
@@ -113,22 +116,57 @@ class Music(commands.Cog):
             if channel == ctx.voice_client.channel:
                 e = message("", "I'm already in voice channel.")
                 await ctx.send(embed=e)
-            
+
             else:
                 await ctx.send(embed=message("","Moving voice channel to " + str(channel)))
                 await ctx.voice_client.disconnect()
                 await channel.connect()
 
     @commands.command()
-    async def play(self, ctx, *, url):
-        """Plays from a url (almost anything youtube_dl supports)"""
+    async def play(self, ctx, search):
+        if ctx.voice_client is None:
+            return await ctx.send("I'm not connected to voice channel.")
+
+        if ctx.voice_client.is_playing():
+            await ctx.send("Music is still playing.\nDo you want to stop this music?(y/n)")
+            try:
+                chk = await self.bot.wait_for('message', timeout=10.0)
+                if chk.content == 'y' : ctx.voice_client.stop()
+                else: return
+            
+            except asyncio.TimeoutError:
+                await ctx.send("Timeout.")
+                return
+
+        query = urllib.parse.urlencode({"search_query" : search})
+        search_url = "https://www.youtube.com/results?search_query=" + query
+        response = urllib.request.urlopen(search_url)
+        html = response.read()
+        soup = BeautifulSoup(html, 'html.parser')
+        result = []
+        result_url = []
+        for music in soup.findAll(attrs={'class':'yt-uix-tile-link'}):
+            if (music['href'].find('watch') == 1 and music['href'].find('list') != 21):
+                result.append(music['title'])
+                result_url.append(music['href'])
+        music_list = "0. " + result[0] + "\n1. " + result[1] + "\n2. " + result[3] + "\n3. " + result[4] + "\n4. " + result[5]
+        await ctx.send(embed=message("Search result", music_list+"\nc. cancel"))
+        try:
+            cmd = await self.bot.wait_for('message', timeout=10.0)
+            while not (cmd.content.isdigit() or cmd.content == 'c'):
+                cmd = await self.bot.wait_for('message', timeout=2.0)
+            if cmd.content == 'c': return await ctx.send("Canceled.")
+            elif (cmd.content.isdigit()) : url = "https://www.youtube.com" + result_url[int(cmd.content)]
+        
+        except asyncio.TimeoutError:
+            await ctx.send("Timeout.")
+            return
+        
 
         async with ctx.typing():
             player = await YTDLSource.from_url(url, loop=self.bot.loop)
-            if ctx.voice_client.is_playing():
-                return
             ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
-
+        
         await ctx.send('Now playing: {}'.format(player.title))
     
     @commands.command()
@@ -136,9 +174,8 @@ class Music(commands.Cog):
         if ctx.voice_client is None:
             return await ctx.send("Not connected to a voice channel.")
 
-        self.volume = volume
-        ctx.voice_client.source.volume = self.volume / 100
-        await ctx.send("Changed volume to {}%".format(self.volume))
+        ctx.voice_client.source.volume = volume / 100
+        await ctx.send("Changed volume to {}%".format(volume))
 
     @commands.command()
     async def leave(self, ctx):
