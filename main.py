@@ -4,6 +4,7 @@ import youtube_dl
 import urllib.request, urllib.parse, re
 from discord.ext import commands
 from bs4 import BeautifulSoup
+from game import blackjack
 
 token = os.environ["discord_auth"]
 
@@ -82,7 +83,8 @@ class Whale(commands.Cog):
 class Game(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        
+        self.playing = False
+
     @commands.command()
     async def game(self, ctx):
         text = "What game do you want to play!"
@@ -91,7 +93,75 @@ class Game(commands.Cog):
     
     @commands.command()
     async def blackjack(self, ctx):
-        return
+        if self.playing : return await ctx.send("Game is still playing")
+        await ctx.send("Welcome to blackjack!\nStarting with chips of 2")
+        play = blackjack()
+        round = True
+        total_count = 0
+        win_count = 0
+        chips = 2
+        while round:
+            dealer = []
+            player = []
+            for _ in range(2):
+                card = play.hit()
+                player.append(card)
+                card = play.hit()
+                dealer.append(card)
+            await ctx.send("My cards are:\n++++ ++\n"+ str(dealer[1]["suit"])+" "+str(dealer[1]["rank"]))
+            await ctx.send("Your cards are:")
+            for i in range(2):
+                await ctx.send(str(player[i]["suit"]+" "+str(player[i]["rank"])))
+            score_dealer = play.count_score(dealer)
+            score_player = play.count_score(player)
+            if score_player == 21:
+                await ctx.send("Black Jack! You win.")
+                chips += 2
+                win_count += 1
+            elif score_player < 21:
+                await ctx.send("Hit?(y/n)")
+                try:
+                    chk = await self.bot.wait_for('message', timeout=30.0)
+                    while not (chk.content.lower() == 'y' or chk.content.lower() == 'n'): 
+                        chk = await self.bot.wait_for('message', timeout=20.0)
+                    if (chk.content.lower() == 'y') : more = True
+                    while more and score_player <= 21:
+                        card = play.hit()
+                        player.append(card)
+                        await ctx.send(str(card['suit']+" "+str(card['rank'])))
+                        score_player = play.count_score(player)
+                        if score_player <= 21:
+                            await ctx.send("Hit?(y/n)")
+                            chk = await self.bot.wait_for('message', timeout=30.0)
+                            while not (chk.content.lower().lower() == 'y' or chk.content.lower() == 'n'): chk = await self.bot.wait_for('message', timeout=20.0)
+                            if (chk.content.lower() == 'n') : more = False
+                    if score_player > 21:
+                        await ctx.send("You bust! I win.")
+                        chips -= 1
+                    else:
+                        while score_dealer <= 16:
+                            card = play.hit()
+                            dealer.append(card)
+                            score_dealer = play.count_score(dealer)
+                        await ctx.send("My cards are: "+str(card['suit']+" "+str(card['rank'])))
+                        if score_dealer > 21:
+                            await ctx.send("I bust! You win.")
+                        elif score_dealer == score_player:
+                            await ctx.send("We draw.")
+                        elif score_dealer > score_player:
+                            await ctx.send("I win.")
+                            chips -= 1
+                        elif score_dealer < score_player:
+                            await ctx.send('You win.')
+                            chips += 1
+                            win_count += 1
+                    await ctx.send("Chips = "+str(chips))
+                    await ctx.send("Play more?(y/n)")
+                    chk = await self.bot.wait_for('message', timeout=30.0)
+                    while not (chk.content.lower() == 'y' or chk.content.lower() == 'n'): chk = await self.bot.wait_for('message', timeout=20.0)
+                    if (chk.content.lower() == 'n'): round = False
+                except asyncio.TimeoutError: return await ctx.send("Timeout.\nShutting Down...")
+            total_count += 1
 
 class Music(commands.Cog):
     def __init__(self, bot):
@@ -125,41 +195,41 @@ class Music(commands.Cog):
         if ctx.voice_client.is_playing():
             await ctx.send("Music is still playing.\nDo you want to stop this music?(y/n)")
             try:
-                chk = await self.bot.wait_for('message', timeout=10.0)
-                while not (chk.content == 'y' or chk.content == 'n'):
-                    chk = await self.bot.wait_for('message', timeout=5.0)
-                if chk.content == 'y' : ctx.voice_client.stop()
+                chk = await self.bot.wait_for('message', timeout=20.0)
+                while not (chk.content.lower() == 'y' or chk.content.lower() == 'n'):
+                    chk = await self.bot.wait_for('message', timeout=10.0)
+                if chk.content.lower() == 'y' : ctx.voice_client.stop()
                 else : return
             
             except asyncio.TimeoutError:
                 await ctx.send("Timeout.")
                 return
-
-        query = urllib.parse.urlencode({"search_query" : search})
-        search_url = "https://www.youtube.com/results?search_query=" + query
-        response = urllib.request.urlopen(search_url)
-        html = response.read()
-        soup = BeautifulSoup(html, 'html.parser')
-        result = []
-        result_url = []
-        for music in soup.findAll(attrs={'class':'yt-uix-tile-link'}):
-            if (music['href'].find('watch') == 1 and music['href'].find('list') != 21):
-                result.append(music['title'])
-                result_url.append(music['href'])
-        music_list = "0. " + result[0] + "\n1. " + result[1] + "\n2. " + result[3] + "\n3. " + result[4] + "\n4. " + result[5]
-        await ctx.send(embed=message("Search result", music_list+"\nc. cancel"))
-        try:
-            cmd = await self.bot.wait_for('message', timeout=10.0)
-            while not (cmd.content.isdigit() or cmd.content == 'c'):
-                cmd = await self.bot.wait_for('message', timeout=2.0)
-            if cmd.content == 'c': return await ctx.send("Canceled.")
-            elif (cmd.content.isdigit()) : url = "https://www.youtube.com" + result_url[int(cmd.content)]
+        if (search.startswith("https:")): url = search
+        else:
+            query = urllib.parse.urlencode({"search_query" : search})
+            search_url = "https://www.youtube.com/results?search_query=" + query
+            response = urllib.request.urlopen(search_url)
+            html = response.read()
+            soup = BeautifulSoup(html, 'html.parser')
+            result = []
+            result_url = []
+            for music in soup.findAll(attrs={'class':'yt-uix-tile-link'}):
+                if (music['href'].find('watch') == 1 and music['href'].find('list') != 21):
+                    result.append(music['title'])
+                    result_url.append(music['href'])
+            music_list = "0. " + result[0] + "\n1. " + result[1] + "\n2. " + result[3] + "\n3. " + result[4] + "\n4. " + result[5]
+            await ctx.send(embed=message("Search result", music_list+"\nc. cancel"))
+            try:
+                cmd = await self.bot.wait_for('message', timeout=10.0)
+                while not (cmd.content.isdigit() or cmd.content == 'c'):
+                    cmd = await self.bot.wait_for('message', timeout=2.0)
+                if cmd.content == 'c': return await ctx.send("Canceled.")
+                elif (cmd.content.isdigit()) : url = "https://www.youtube.com" + result_url[int(cmd.content)]
         
-        except asyncio.TimeoutError:
-            await ctx.send("Timeout.")
-            return
+            except asyncio.TimeoutError:
+                await ctx.send("Timeout.")
+                return
         
-
         async with ctx.typing():
             player = await YTDLSource.from_url(url, loop=self.bot.loop)
             ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
@@ -171,7 +241,7 @@ class Music(commands.Cog):
         if ctx.voice_client is None:
             return await ctx.send("I'm not in voice channel.")
         
-        if ctx.voice_client.is_playing:
+        if ctx.voice_client.is_playing():
             ctx.voice_client.stop()
             return await ctx.send("Stopped music.")
         
