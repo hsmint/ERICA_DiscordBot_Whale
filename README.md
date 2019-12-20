@@ -1,8 +1,7 @@
 # ERICA_DiscordBot-Whale
+![GitHub](https://img.shields.io/github/license/hsmint/ERICA_DiscordBot-Whale)
 
 * Hanyang ERICA Univ. Open Source Project - Made by 2019011503 홍석민
-
-* Still in development
 
 ## Requirements
 
@@ -52,4 +51,4 @@ Using `!help`, Show functions in discord channel
 
 To invite discord bot to your channel click below
 
-* [ERICA_DiscordBot-Whale](https://discordapp.com/oauth2/authorize?client_id=648062744389484565&permissions=8&scope=bot)(Recommand giving administrator, if not, function or part of function may not work)
+* [ERICA_DiscordBot-Whale](https://discordapp.com/oauth2/authorize?client_id=648062744389484565&permissions=8&scope=bot)(Recommend giving administrator, if not, function or part of function may not work)
