@@ -11,12 +11,13 @@ class blackjack:
             for num in ranks:
                 self.deck.append({"suit": name, "rank": num})
         random.shuffle(self.deck)
-        return self.deck
-    
+        return
+
     def hit(self):
         if self.deck == []:
-            self.deck = new_deck()
-        return (self.deck[0] , self.deck[1:])
+            self.new_deck()
+        card, self.deck = self.deck[0], self.deck[1:]
+        return card
     
     def count_score(self, cards):
         score = 0
