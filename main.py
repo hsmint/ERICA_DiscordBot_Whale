@@ -170,6 +170,18 @@ class Music(commands.Cog):
         await ctx.send('Now playing: {}'.format(player.title))
     
     @commands.command()
+    async def stop(self, ctx):
+        if ctx.voice_client is None:
+            return await ctx.send("I'm not in voice channel.")
+        
+        if ctx.voice_client.is_playing:
+            ctx.voice_client.stop()
+            return await ctx.send("Stopped music.")
+        
+        else:
+            return await ctx.send("There is no music playing.")
+            
+    @commands.command()
     async def volume(self, ctx, volume: int):
         if ctx.voice_client is None:
             return await ctx.send("Not connected to a voice channel.")
