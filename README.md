@@ -24,6 +24,12 @@ python3 -m pip install beautifulsoup4
 sudo apt install ffmpeg
 ```
 
+##Execute
+To execute run the following command:
+```
+python3 main.py
+```
+
 ## Functions
 
 Using `!help`, Show functions in discord channel
