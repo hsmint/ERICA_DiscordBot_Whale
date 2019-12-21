@@ -281,7 +281,7 @@ class Music(commands.Cog):
     @commands.command()
     async def leave(self, ctx):
         """Leave voice channel"""
-        if ctx.author.voice is None: return
+        if ctx.author.voice is None: return await ctx.send("You are not in voice channel.")
         try:
             channel = ctx.voice_client.channel
             await ctx.send("Leaving voice channel " + str(channel))
