@@ -8,7 +8,7 @@ from game import blackjack
 
 token = os.environ["discord_auth"]
 
-bot = commands.Bot(command_prefix="!",help_command=None, activity=discord.Activity(name="Whale | !help", type=1))
+bot = commands.Bot(command_prefix="!", activity=discord.Activity(name="Whale | !help", type=1))
 
 footer = "Made by hsmint"
 
@@ -68,16 +68,13 @@ class Whale(commands.Cog):
 
     @commands.command()
     async def whale(self, ctx):
+        """Show random pictures of whale emoticon"""
         pick = random.randrange(1, 30)
         await ctx.send(file=discord.File('image/'+str(pick)+'.png'))
-
-    @commands.command()
-    async def help(self, ctx):
-        e = message("Help", "!whale - Show random picture of whale emoticon.")
-        await ctx.send(embed=e)
-
+    
     @commands.command()
     async def ping(self, ctx):
+        """Show bot's internet connection"""
         await ctx.send("Pong! `{0}ms`".format(round(bot.latency, 6)))
     
 class Game(commands.Cog):
@@ -87,12 +84,14 @@ class Game(commands.Cog):
 
     @commands.command()
     async def game(self, ctx):
+        """Show what game is available"""
         text = "What game do you want to play!"
         e = message("<Showing Game available>", text)
         await ctx.send(embed=e)
     
     @commands.command()
     async def blackjack(self, ctx):
+        """Blackjack game"""
         if self.playing == True : return await ctx.send("Game is still playing")
         self.playing = True
         time.sleep(1)
@@ -189,6 +188,7 @@ class Music(commands.Cog):
     
     @commands.command()
     async def join(self, ctx):
+        """Join voice channel"""
         if ctx.author.voice is None:
             return await ctx.send("You are not in voice channel.")
         
@@ -209,6 +209,7 @@ class Music(commands.Cog):
 
     @commands.command()
     async def play(self, ctx):
+        """Play music(need url or word. Using youtube!)"""
         search = ctx.message.content[6:]
         if ctx.voice_client is None: return await ctx.send("I'm not connected to voice channel.")
         elif ctx.author.voice is None: return await ctx.send("You are not in voice channel.")
@@ -258,6 +259,7 @@ class Music(commands.Cog):
     
     @commands.command()
     async def stop(self, ctx):
+        """Stop plyaing music"""
         if ctx.voice_client is None:
             return await ctx.send("I'm not in voice channel.")
         
@@ -269,6 +271,7 @@ class Music(commands.Cog):
 
     @commands.command()
     async def volume(self, ctx, volume: int):
+        """Change volume"""
         if ctx.voice_client is None: return await ctx.send("I'm not connected to a voice channel.")
         elif ctx.author.voice is None: return await ctx.send("You are not in voice channel.")
         self.volume = volume
@@ -277,6 +280,7 @@ class Music(commands.Cog):
 
     @commands.command()
     async def leave(self, ctx):
+        """Leave voice channel"""
         if ctx.author.voice is None: return
         try:
             channel = ctx.voice_client.channel
