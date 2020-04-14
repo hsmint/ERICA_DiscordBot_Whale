@@ -4,9 +4,8 @@ import youtube_dl
 import urllib.request, urllib.parse, re
 from discord.ext import commands
 from bs4 import BeautifulSoup
-from game import blackjack
 
-token = os.environ["discord_auth"]
+token = 'NTQzNzY3NTA1MTAyMDQ1MTk0.XpWt3A.Nwf6JrcIdCFqqXm7S8ULXw4CQGE'
 
 bot = commands.Bot(command_prefix="!", activity=discord.Activity(name="Whale | !help", type=1))
 
@@ -77,110 +76,6 @@ class Whale(commands.Cog):
         """Show bot's internet connection"""
         await ctx.send("Pong! `{0}ms`".format(round(bot.latency, 6)))
     
-class Game(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-        self.playing = False
-
-    @commands.command()
-    async def game(self, ctx):
-        """Show what game is available"""
-        text = "What game do you want to play!"
-        e = message("<Showing Game available>", text)
-        await ctx.send(embed=e)
-    
-    @commands.command()
-    async def blackjack(self, ctx):
-        """Blackjack game"""
-        if self.playing == True : return await ctx.send("Game is still playing")
-        self.playing = True
-        time.sleep(1)
-        await ctx.send("Welcome to blackjack!\nStarting with chips of 2")
-        play = blackjack()
-        round = True
-        chips = 2
-        while round and chips >= 0:
-            dealer = []
-            player = []
-            for _ in range(2):
-                card = play.hit()
-                player.append(card)
-                card = play.hit()
-                dealer.append(card)
-            time.sleep(1)
-            await ctx.send("My cards are:")
-            time.sleep(1)
-            await ctx.send("++++ ++")
-            time.sleep(1)
-            await ctx.send(str(dealer[1]["suit"])+" "+str(dealer[1]["rank"]))
-            time.sleep(1)
-            await ctx.send("Your cards are:")
-            for i in range(2):
-                time.sleep(1)
-                await ctx.send(str(player[i]["suit"]+" "+str(player[i]["rank"])))
-            score_dealer = play.count_score(dealer)
-            score_player = play.count_score(player)
-            if score_player == 21:
-                time.sleep(1)
-                await ctx.send("Black Jack! You win.")
-                chips += 2
-            elif score_player < 21:
-                time.sleep(1)
-                await ctx.send("Hit?(y/n)")
-                try:
-                    chk = await self.bot.wait_for('message', timeout=30.0)
-                    while not (chk.content.lower() == 'y' or chk.content.lower() == 'n'): 
-                        chk = await self.bot.wait_for('message', timeout=20.0)
-                    if (chk.content.lower() == 'y') : more = True
-                    while more and score_player <= 21:
-                        card = play.hit()
-                        player.append(card)
-                        time.sleep(1)
-                        await ctx.send(str(card['suit']+" "+str(card['rank'])))
-                        score_player = play.count_score(player)
-                        if score_player <= 21:
-                            time.sleep(1)
-                            await ctx.send("Hit?(y/n)")
-                            chk = await self.bot.wait_for('message', timeout=30.0)
-                            while not (chk.content.lower().lower() == 'y' or chk.content.lower() == 'n'): chk = await self.bot.wait_for('message', timeout=20.0)
-                            if (chk.content.lower() == 'n') : more = False
-                    if score_player > 21:
-                        time.sleep(1)
-                        await ctx.send("You bust! I win.")
-                        chips -= 1
-                    else:
-                        while score_dealer <= 16:
-                            card = play.hit()
-                            dealer.append(card)
-                            score_dealer = play.count_score(dealer)
-                        time.sleep(1)
-                        await ctx.send("My cards are: "+str(card['suit']+" "+str(card['rank'])))
-                        if score_dealer > 21:
-                            time.sleep(1)
-                            await ctx.send("I bust! You win.")
-                            chips += 1
-                        elif score_dealer == score_player:
-                            time.sleep(1)
-                            await ctx.send("We draw.")
-                        elif score_dealer > score_player:
-                            time.sleep(1)
-                            await ctx.send("I win.")
-                            chips -= 1
-                        elif score_dealer < score_player:
-                            time.sleep(1)
-                            await ctx.send('You win.')
-                            chips += 1
-                    time.sleep(1)
-                    await ctx.send("Chips = "+str(chips))
-                    time.sleep(1)
-                    await ctx.send("Play more?(y/n)")
-                    chk = await self.bot.wait_for('message', timeout=30.0)
-                    while not (chk.content.lower() == 'y' or chk.content.lower() == 'n'): chk = await self.bot.wait_for('message', timeout=20.0)
-                    if (chk.content.lower() == 'n'): round = False
-                except asyncio.TimeoutError: return await ctx.send("Timeout.\nShutting Down...")
-        await ctx.send("Bye!")
-        self.playing = False
-
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -259,7 +154,7 @@ class Music(commands.Cog):
     
     @commands.command()
     async def stop(self, ctx):
-        """Stop plyaing music"""
+        """Stop playing music"""
         if ctx.voice_client is None:
             return await ctx.send("I'm not in voice channel.")
         
@@ -270,13 +165,14 @@ class Music(commands.Cog):
         else: return await ctx.send("There is no music playing.")
 
     @commands.command()
-    async def volume(self, ctx, volume: int):
+    async def volume(self, ctx, volume):
         """Change volume"""
         if ctx.voice_client is None: return await ctx.send("I'm not connected to a voice channel.")
         elif ctx.author.voice is None: return await ctx.send("You are not in voice channel.")
+        if(volume != int and (volume <= 0 or volume >= 11)): return await ctx.send("Please give input 1 to 10")
         self.volume = volume
-        ctx.voice_client.source.volume = volume / 100
-        await ctx.send("Changed volume to {}%".format(volume))
+        ctx.voice_client.source.volume = int(volume / 1000)
+        await ctx.send("Changed volume to {}".format(volume))
 
     @commands.command()
     async def leave(self, ctx):
@@ -292,7 +188,6 @@ class Music(commands.Cog):
             
 #bot Catergory
 bot.add_cog(Whale(bot))
-bot.add_cog(Game(bot))
 bot.add_cog(Music(bot))
 
 bot.run(token)
