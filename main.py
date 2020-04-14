@@ -5,7 +5,7 @@ import urllib.request, urllib.parse, re
 from discord.ext import commands
 from bs4 import BeautifulSoup
 
-token = 'NTQzNzY3NTA1MTAyMDQ1MTk0.XpWt3A.Nwf6JrcIdCFqqXm7S8ULXw4CQGE'
+token = 'your token'
 
 bot = commands.Bot(command_prefix="!", activity=discord.Activity(name="Whale | !help", type=1))
 
