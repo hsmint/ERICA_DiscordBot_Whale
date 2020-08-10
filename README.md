@@ -2,7 +2,7 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/hsmint/ERICA_DiscordBot-Whale)
 ![GitHub](https://img.shields.io/github/license/hsmint/ERICA_DiscordBot-Whale)
 
-* Hanyang ERICA Univ. Open Source Project - Made by 2019011503 홍석민
+* Hanyang ERICA Univ. Open Source Project
 
 ## Requirements
 
